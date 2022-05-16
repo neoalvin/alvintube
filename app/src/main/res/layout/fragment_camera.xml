@@ -3,17 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/cameraFragment"
     tools:context=".CameraFragment">
 
-    <TextureView
-        android:id="@+id/textureView"
+    <SurfaceView
+        android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <ImageButton
         android:id="@+id/capture"
         android:layout_gravity="bottom|center"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background=""/>
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="fitCenter"
+        android:background="@drawable/ic_shutter"/>
 </FrameLayout>

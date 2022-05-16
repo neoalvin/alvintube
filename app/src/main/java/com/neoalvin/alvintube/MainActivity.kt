@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.neoalvin.alvintube.databinding.ActivityMainBinding
 
+
 class MainActivity : FragmentActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding;
@@ -12,5 +13,10 @@ class MainActivity : FragmentActivity() {
 
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
+
+        supportFragmentManager.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(R.id.cameraFragment, CameraFragment::class.java, savedInstanceState)
+            .commit()
     }
 }
