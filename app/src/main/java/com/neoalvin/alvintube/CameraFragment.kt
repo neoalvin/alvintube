@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.neoalvin.alvintube.databinding.FragmentCameraBinding
+import com.neoalvin.alvintube.utils.getPreviewOutputSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -94,14 +95,12 @@ class CameraFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (!hasPermissions(requireContext())) {
-            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
-        }
-
         fragmentCameraBinding.surfaceView.holder.addCallback(
             object: SurfaceHolder.Callback {
                 override fun surfaceCreated(holder: SurfaceHolder) {
-                    fragmentCameraBinding.surfaceView.holder.setFixedSize(1080, 1920)
+                    var previewSize = getPreviewOutputSize(fragmentCameraBinding.surfaceView.display,
+                    characteristics, SurfaceHolder::class.java)
+                    fragmentCameraBinding.surfaceView.holder.setFixedSize(previewSize.width, previewSize.height)
                     fragmentCameraBinding.surfaceView.post {
                         initCamera()
                     }
@@ -117,16 +116,6 @@ class CameraFragment : Fragment() {
                 override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
 
             })
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSIONS_REQUEST_CODE) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context, "Permission request denied", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     private fun initCamera() = lifecycleScope.launch(Dispatchers.Main) {
@@ -200,22 +189,12 @@ class CameraFragment : Fragment() {
     companion object {
         private const val TAG: String = "CameraFragment"
 
-        private const val PERMISSIONS_REQUEST_CODE = 10
-
-        private val PERMISSIONS_REQUIRED = arrayOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO)
-
         private const val RECORDER_VIDEO_BITRATE: Int = 10_000_000
 
         private fun getFileName(): String {
             var date = Date()
             var simpleDateFormat = SimpleDateFormat("yyyy-mm-dd hh:MM:ss")
             return simpleDateFormat.format(date) + ".mp4"
-        }
-
-        private fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
     }
 }
