@@ -1,9 +1,7 @@
 package com.neoalvin.alvintube
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.hardware.camera2.*
 import android.media.MediaCodec
 import android.media.MediaRecorder
@@ -12,11 +10,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.util.Range
-import android.util.Size
 import android.view.*
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.neoalvin.alvintube.databinding.FragmentCameraBinding
@@ -24,7 +18,7 @@ import com.neoalvin.alvintube.utils.getPreviewOutputSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import java.lang.RuntimeException
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
@@ -60,6 +54,8 @@ class CameraFragment : Fragment() {
 
     private val recorder: MediaRecorder by lazy { createRecorder(recorderSurface) }
 
+    private val outputFile: File by lazy { createFile(requireContext(), "mp4") }
+
     private val cameraThread = HandlerThread("CameraThread").apply { start() }
 
     private val cameraHandler = Handler(cameraThread.looper)
@@ -85,6 +81,8 @@ class CameraFragment : Fragment() {
             set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(30, 30))
         }.build()
     }
+
+    private var recordingStartMillis: Long = 0L
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -118,17 +116,66 @@ class CameraFragment : Fragment() {
             })
     }
 
+    override fun onStop() {
+        super.onStop()
+        try {
+            cameraDevice.close()
+        } catch (exc: Throwable) {
+            Log.e(TAG, "Error closing camera", exc)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraThread.quitSafely()
+        recorder.release()
+        recorderSurface.release()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     private fun initCamera() = lifecycleScope.launch(Dispatchers.Main) {
+        // 打开摄像头
         cameraDevice = openCamera()
+
+        // 创建session
         captureSession = createCaptureSession()
+
+        // 下发预览
         captureSession.setRepeatingRequest(previewRequest, null, cameraHandler)
+
+        // 点击下发录像
+        fragmentCameraBinding.capture.setOnTouchListener {
+            view, event -> run {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> lifecycleScope.launch(Dispatchers.IO) {
+                    captureSession.setRepeatingRequest(recordRequest, null, cameraHandler)
+
+                    recorder.apply {
+                        prepare()
+                        start()
+                    }
+
+                    recordingStartMillis = System.currentTimeMillis()
+                    Log.d(TAG, "Recording started")
+                }
+
+                MotionEvent.ACTION_UP -> lifecycleScope.launch(Dispatchers.IO) {
+                    Log.d(TAG, "Recording stopped. Output file: $outputFile")
+                    recorder.stop()
+                }
+                else -> {}
+            }
+        }
+
+            true
+        }
     }
 
     private fun createRecorder(surface: Surface) = MediaRecorder().apply {
         setAudioSource(MediaRecorder.AudioSource.MIC)
         setVideoSource(MediaRecorder.VideoSource.SURFACE)
         setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        setOutputFile(requireContext().cacheDir.absolutePath + getFileName())
+        setOutputFile(outputFile.absolutePath)
         setVideoEncodingBitRate(RECORDER_VIDEO_BITRATE)
         setVideoFrameRate(30)
         setVideoSize(1080, 1920)
@@ -191,10 +238,9 @@ class CameraFragment : Fragment() {
 
         private const val RECORDER_VIDEO_BITRATE: Int = 10_000_000
 
-        private fun getFileName(): String {
-            var date = Date()
-            var simpleDateFormat = SimpleDateFormat("yyyy-mm-dd hh:MM:ss")
-            return simpleDateFormat.format(date) + ".mp4"
+        private fun createFile(context: Context, extension: String): File {
+            val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
+            return File(context.externalCacheDir, "VID_${sdf.format(Date())}.$extension")
         }
     }
 }

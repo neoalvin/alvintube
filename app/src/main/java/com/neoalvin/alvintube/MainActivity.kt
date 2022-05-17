@@ -2,6 +2,7 @@ package com.neoalvin.alvintube
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
@@ -21,13 +22,19 @@ class MainActivity : FragmentActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
-        if (hasPermissions(applicationContext)) {
-            supportFragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.cameraFragment, CameraFragment::class.java, savedInstanceState)
-                .commit()
-        } else {
-            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
+//        if (hasPermissions(applicationContext)) {
+//            supportFragmentManager.beginTransaction()
+//                .setReorderingAllowed(true)
+//                .add(R.id.cameraFragment, CameraFragment::class.java, savedInstanceState)
+//                .commit()
+//        } else {
+//            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
+//        }
+
+        activityMainBinding.btnHockey.apply {
+            setOnClickListener {
+                startActivity(Intent(applicationContext, HockeyActivity::class.java))
+            }
         }
     }
 
