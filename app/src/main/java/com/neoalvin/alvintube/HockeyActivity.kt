@@ -7,7 +7,10 @@ import android.opengl.GLSurfaceView
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import com.neoalvin.alvintube.utils.HockeyRender
+import com.neoalvin.alvintube.render.CubeRenderer
+import com.neoalvin.alvintube.render.HockeyRender
+import com.neoalvin.alvintube.render.HockeyRender2
+import com.neoalvin.alvintube.render.PanoramaRenderer
 
 class HockeyActivity : Activity() {
     private lateinit var glSurfaceView: GLSurfaceView
@@ -32,7 +35,7 @@ class HockeyActivity : Activity() {
 
         if (supportEls) {
             glSurfaceView.setEGLContextClientVersion(2)
-            glSurfaceView.setRenderer(HockeyRender(applicationContext))
+            glSurfaceView.setRenderer(PanoramaRenderer(applicationContext))
             renderSet = true
             setContentView(glSurfaceView)
         } else {

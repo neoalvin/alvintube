@@ -1,9 +1,11 @@
-package com.neoalvin.alvintube.utils
+package com.neoalvin.alvintube.render
 
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import com.neoalvin.alvintube.R
+import com.neoalvin.alvintube.utils.ShaderHelper
+import com.neoalvin.alvintube.utils.TextResourceReader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -13,7 +15,8 @@ import javax.microedition.khronos.opengles.GL10
 class HockeyRender(context: Context) : GLSurfaceView.Renderer {
     private var vertexShaderSource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_vertex_shader)
 
-    private var fragmentShaderSource = TextResourceReader.readTextFileFromResource(context, R.raw.simple_fragment_shader)
+    private var fragmentShaderSource =
+        TextResourceReader.readTextFileFromResource(context, R.raw.simple_fragment_shader)
 
     // private var uColorLocation: Int? = null
 
@@ -41,12 +44,14 @@ class HockeyRender(context: Context) : GLSurfaceView.Renderer {
         vertexData.position(0)
         GLES20.glVertexAttribPointer(
             aPositionLocation!!, POSITION_COMPONENT_COUNT,
-            GLES20.GL_FLOAT, false, STRIDE, vertexData)
+            GLES20.GL_FLOAT, false, STRIDE, vertexData
+        )
         GLES20.glEnableVertexAttribArray(aPositionLocation!!)
 
         vertexData.position(2);
         GLES20.glVertexAttribPointer(aColorLocation!!, COLOR_COMPONENT_COUNT,
-            GLES20.GL_FLOAT, false, STRIDE, vertexData)
+            GLES20.GL_FLOAT, false, STRIDE, vertexData
+        )
         GLES20.glEnableVertexAttribArray(aColorLocation!!)
 
     }

@@ -1,0 +1,9 @@
+package com.neoalvin.alvintube.constants
+
+class Constants {
+    companion object {
+        const val BYTES_PER_FLOAT = 4
+        const val BYTES_PER_SHORT = 2
+        const val BYTES_PER_INT = 4
+    }
+}
