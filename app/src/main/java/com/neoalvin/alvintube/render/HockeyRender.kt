@@ -25,10 +25,9 @@ class HockeyRender(context: Context) : GLSurfaceView.Renderer {
     private var aPositionLocation: Int? = null
 
     init {
-        vertexData = ByteBuffer
-            .allocateDirect(tableVerticesWithTriangles.size * BYTES_PER_FLOAT)
+        vertexData = ByteBuffer.allocateDirect(tableVerticesWithTriangles.size * BYTES_PER_FLOAT)
             .order(ByteOrder.nativeOrder())
-            .asFloatBuffer();
+            .asFloatBuffer()
         vertexData.put(tableVerticesWithTriangles.toFloatArray())
     }
 
@@ -48,7 +47,7 @@ class HockeyRender(context: Context) : GLSurfaceView.Renderer {
         )
         GLES20.glEnableVertexAttribArray(aPositionLocation!!)
 
-        vertexData.position(2);
+        vertexData.position(2)
         GLES20.glVertexAttribPointer(aColorLocation!!, COLOR_COMPONENT_COUNT,
             GLES20.GL_FLOAT, false, STRIDE, vertexData
         )
@@ -66,7 +65,7 @@ class HockeyRender(context: Context) : GLSurfaceView.Renderer {
         // 桌面
         // GLES20.glUniform4f(uColorLocation!!, 1.0f,1.0f,1.0f,1.0f)
         // GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6)
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6)
 
         // 分割线
         // GLES20.glUniform4f(uColorLocation!!, 1.0f, 0.0f, 0.0f, 1.0f)
